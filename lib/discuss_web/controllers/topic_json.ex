@@ -3,6 +3,8 @@ defmodule DiscussWeb.TopicJSON do
 
   def show(%{topic: topic}), do: %{data: data(topic)}
 
+  def not_found(%{id: id}), do: %{error: %{message: "Topic not found", id: id}}
+
   def error(%{changeset: changeset}) do
     %{errors: Ecto.Changeset.traverse_errors(changeset, &translate_error/1)}
   end

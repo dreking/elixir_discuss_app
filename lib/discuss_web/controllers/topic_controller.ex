@@ -28,4 +28,44 @@ defmodule DiscussWeb.TopicController do
     |> put_status(:ok)
     |> render(:shows, topics: topics)
   end
+
+  def get_topic_by_id(conn, %{"id" => topic_id}) do
+    case Repo.get(Topic, topic_id) do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> render(:not_found, id: topic_id)
+
+      topic ->
+        conn
+        |> put_status(:ok)
+        |> render(:show, topic: topic)
+    end
+  end
+
+  def update(conn, %{"id" => topic_id} = params) do
+    topic_params = Map.get(params, "topic", Map.drop(params, ["id"]))
+
+    case Repo.get(Topic, topic_id) do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> render(:not_found, id: topic_id)
+
+      topic ->
+        changeset = Topic.changeset(topic, topic_params)
+
+        case Repo.update(changeset) do
+          {:ok, updated_topic} ->
+            conn
+            |> put_status(:ok)
+            |> render(:show, topic: updated_topic)
+
+          {:error, changeset} ->
+            conn
+            |> put_status(:unprocessable_entity)
+            |> render(:error, changeset: changeset)
+        end
+    end
+  end
 end
